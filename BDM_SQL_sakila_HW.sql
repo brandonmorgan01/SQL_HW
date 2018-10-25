@@ -178,26 +178,10 @@ WHERE title LIKE 'K%' OR title LIKE'Q%';
 -- 7b
 SELECT 
 	actor.actor_id, first_name, last_name
-FROM(
-	SELECT DISTINCT
-		title, f.film_id
-	FROM
-		film AS f
-	JOIN
-		film_actor AS a
-	ON 
-		f.film_id = a.film_id
-	WHERE
-		title LIKE 'Alone Trip') AS alone_trip
-
-JOIN
+FROM 
 	actor
-ON 
-	alone_trip.actor_id = actor.actor_id;
-
-
-SELECT distinct
-		title, f.film_id
+JOIN(
+	SELECT title, actor_id
 	FROM
 		film AS f
 	JOIN
@@ -205,6 +189,144 @@ SELECT distinct
 	ON 
 		f.film_id = a.film_id
 	WHERE
-		title LIKE 'Alone Trip'
+		title LIKE 'Alone Trip') AS sub
+ON 
+	sub.actor_id = actor.actor_id;
+
+-- 7c
+SELECT 
+	first_name, last_name, email
+FROM 
+	customer AS cu
+JOIN
+	address AS a
+ON 
+	cu.address_id = a.address_id
+JOIN
+	city AS ci
+ON 
+	a.city_id = ci.city_id
+JOIN
+	country AS co
+ON 
+	ci.country_id = co.country_id
+WHERE 
+	country LIKE "Canada";
+    
+-- 7d
+SELECT 
+	title, rating
+FROM 
+	film
+WHERE 
+	rating = "G" OR rating = "PG";
+
+-- 7e
+SELECT
+	Title, COUNT(rental_id) AS times_rented
+FROM
+	film AS f
+JOIN 
+	inventory AS i 
+ON 
+	f.film_id = i.film_id
+JOIN
+	rental AS r
+ON 
+	i.inventory_id = r.inventory_id
+GROUP BY 
+	title
+ORDER BY 
+	COUNT(rental_id) DESC;
+
+-- 7f
+SELECT 
+	store.store_id, SUM(amount)
+FROM
+	payment AS p
+JOIN 
+	staff
+ON
+	p.staff_id = staff.staff_id
+JOIN
+	store
+ON 
+	staff.store_id = store.store_id
+GROUP BY 
+	store.store_id;
+
+-- 7g
+SELECT 
+	store_id, city, country
+FROM
+	store AS s 
+JOIN 
+	address AS a
+ON 
+	s.address_id = a.address_id
+JOIN
+	city AS ci
+ON
+	a.city_id = ci.city_id
+JOIN
+	country AS co
+ON 
+	ci.country_id = co.country_id
+GROUP BY 
+	store_id;
+
+-- 7h
+SELECT 
+	category_id, SUM(amount) AS gross_revenue
+FROM 
+	film_category AS fc
+JOIN 
+	inventory AS i
+ON 
+	fc.film_id = i.film_id
+JOIN
+	rental AS r
+ON 
+	i.inventory_id = r.inventory_id
+JOIN 
+	payment AS p
+ON 
+	r.rental_id = p.rental_id
+GROUP BY 
+	category_id
+ORDER BY 
+	gross_revenue DESC
+LIMIT 5;
 
 
+-- 8a
+CREATE VIEW `top_five_genres` AS 
+
+SELECT 
+	category_id, SUM(amount) AS gross_revenue
+FROM 
+	film_category AS fc
+JOIN 
+	inventory AS i
+ON 
+	fc.film_id = i.film_id
+JOIN
+	rental AS r
+ON 
+	i.inventory_id = r.inventory_id
+JOIN 
+	payment AS p
+ON 
+	r.rental_id = p.rental_id
+GROUP BY 
+	category_id
+ORDER BY 
+	gross_revenue DESC
+LIMIT 5;
+
+-- 8b
+SHOW CREATE VIEW `top_five_genres`;
+
+-- 8c
+DROP VIEW `top_five_genres`;
+	
